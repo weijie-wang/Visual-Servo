@@ -2,9 +2,9 @@
 % Description: main.m                                                     %
 %   An adaptive controller for image-based KINEMATIC control of a robot   %
 %   manipulator using a eye-in-hand camera whose intrinsic and extrinsic  %
-%   parameters are not known using one point feature.The controller       %
-%   controls the pose(position and orientation(YPR)) of end-effectors     %
-%   and updata the point estimated positon.                               %
+%   parameters are KNOWN using one point feature.The controller controls  %
+%   the pose(position and orientation(YPR)) of end-effectors and updata   %
+%   the point estimated positon.                                          %
 %   Refer to peper: Wang H, Liu Y H, Zhou D.                              %
 %   Adaptive visual servoing using point and line features with an        %
 %   uncalibrated eye-in-hand camera[J]. Robotics, IEEE Transactions on,   %

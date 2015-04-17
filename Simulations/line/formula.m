@@ -1,0 +1,46 @@
+syms m1 m2 m3 m4 m5 m6 m7 m8 m9 m10 m11 m12;
+syms r1 r2 r3 r4 r5 r6 r7 r8 r9;
+syms t1 t2 t3;
+syms u1 u2 u3 p1 p2 p3;
+syms j1 j2 j3 j4 j5 j6 j7 j8 j9 j10 j11 j12 j13 j14 j15 j16 j17 j18 j19 j20 j21 j22 j23 j24;
+syms n1 n2 n3;
+syms delta_n1 delta_n2 delta_n3;
+syms k1;
+n = [n1; n2; n3];
+delta_n = [delta_n1; delta_n2; delta_n3];
+omega = [m1 m2 m3;  m5 m6 m7; m9 m10 m11];
+phai = [m4; m8; m12];
+R = [r1 r2 r3; r4 r5 r6; r7 r8 r9];
+ksi = [t1; t2; t3];
+u = [u1; u2; u3];
+point = [p1; p2; p3];
+M = [m1 m2 m3 m4; m5 m6 m7 m8; m9 m10 m11 m12];
+T = [r1 r2 r3 t1; r4 r5 r6 t2; r7 r8 r9 t3; 0 0 0 1];
+J = [j1 j2 j3 j4; j5 j6 j7 j8; j9 j10 j11 j12; j13 j14 j15 j16; j17 j18 j19 j20; j21 j22 j23 j24];
+% L = dpim(n, M, T, point, u, J);
+I = eye(3);
+vector_temp1 = omega * R * u;
+vector_temp2 = R * point + ksi;
+vector_temp3 = omega * (R * point + ksi) + phai;
+vector_temp4 = R * u;
+F1 = skewsymmetric(vector_temp1.') * omega;
+F2 = -skewsymmetric(vector_temp1.') * omega * skewsymmetric(vector_temp2.');
+F3 = skewsymmetric(vector_temp3.') * omega * skewsymmetric(vector_temp4.');
+F4 = F2 + F3;
+F = [F1, F4];
+L = (I - n * n.') * F * [R zeros(3); zeros(3) R] * J;
+C = n.' * F * [R zeros(3); zeros(3) R] * J;
+joint_velocity = - (L.' + 0.5 * C.' * delta_n.') * k1 * delta_n;
+
+fomular = F.' * (I - n * n.' + 0.5 * n * delta_n.');
+fomular = fomular * delta_n;
+fomular = expand(fomular);
+b = cross((M * T * [point; 1]),(M * T * [u; 0]));
+b = expand(b);
+err = b - (b.' * n) * n;
+err = expand(err);
+ss = char(err);
+b_1 = cross((omega * R * point),(omega * R * u));
+b_1 = expand(b_1);
+
+
