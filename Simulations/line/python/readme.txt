@@ -1,0 +1,4 @@
+combine.py里面是同时提取b e 和q_velocity中变量和系数的程序fomular.m的结果的字符串规范化处理程序
+源字符串b.txt、fomular.txt、error.txt分别是来自matlab程式fomular.m中b、fomular和E_test的字符串
+coefficient_XXX.txt是对应的系数，variables_XXX.txt是对应的未知变量，注意，三个variables_XXX.txt中的位置变量顺序应该相同
+注意：这里e中提出来的是 E_coe而不是w，如果要提出w，需要分别提出b_esti中的参数和e-b_esti中的参数，再相加即为w

@@ -43,4 +43,7 @@ ss = char(err);
 b_1 = cross((omega * R * point),(omega * R * u));
 b_1 = expand(b_1);
 
+b_esti = cross(M * T * [point; 1], M  * T * [u; 0]);
+E_test = b_esti - (b_esti.' * n) * n;
+E_test = expand(E_test);
 

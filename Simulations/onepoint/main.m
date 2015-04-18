@@ -18,7 +18,7 @@
 
 %% Initialize Variables
 M = [630 0 250 0;0 630 250 0;0 0 1 0];                                      %camera perspective projection matrix KNOWN consist of intrinsic parameters matrix
-point_esti = [2; 2; 2];                                                     %point estimated position with respect to base frame
+point_esti = [2; 10; 15];                                                     %point estimated position with respect to base frame
 point_real = [1; 1; 0];                                                     %point real position with respect to base frame
 endeffector_des = [1.5; 0.9;   1; 3.14; 0.5; 0];                           	%endeffector (frame) desired pose([x y z y p r]) with respect to base frame 
 endeffector_cur = [1.1; 1.2; 0.8;  3.2; 0.1; 2];                            %endeffector (frame) current pose([x y z y p r]) with respect to base frame 
