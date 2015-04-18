@@ -12,7 +12,7 @@
 %                                                                         %
 % Copyright:   Shanghai SJTU Autonomous Robot Lab.                        %
 % Author:      Jay Wang                                                   %
-% Version:     Beta 2.0.1                                                 %
+% Version:     realse 1.0.1                                               %
 % Data:        2015.04.19                                                 %
 %%-----------------------------------------------------------------------%%
 
@@ -49,53 +49,54 @@ figure(1);
 plot3(n_des(1), n_des(2), n_des(3), 'r*');       
 hold on                                                                     %plot it
 b_cur = cross(M_real / Doves.fkine(joint_cur') * [point_real; 1], M_real / Doves.fkine(joint_cur') * [u_real; 0]); 
-n_cur = b_cur/sqrt(sum(b_cur' * b_cur));                                    %perspective projecion of line DESIRED 
+n_cur = b_cur/sqrt(sum(b_cur' * b_cur));                                    %perspective projecion of line CURRENT 
 delta_n = n_cur - n_des;                                                    %image error
 
 t=0.01;                                                                     %interval
-k1=1;                                                                       %positive difinite gain matrix                                                              
-k3=100000;
-k4=100000;
+k1=1;                                                                       %positive difinite gain matrix for joint_velocity                                                             
+k3=100000;                                                                  %positive difinite gain matrix for Theta_integral   
+k4=100000;                                                                  %positive difinite gain matrix for Theta_velocity
 time=0;                                                                     %cycle index
 k = 1;
-image_num = 1;
-Theta_esti = theta(M_esti, point_esti, u_esti);
-Theta_real = theta(M_real, point_real, u_real);
-Theta_integral = zeros(216,1);
-T_cur = Doves.fkine(joint_cur');
-T_cur = inv(T_cur);
-j_velocity = [];
-T_velocity = [];
-E_velocity = [];
-W_matrix = [];
-W_temp = zeros(3,216);
-E_esti = zeros(3,1);
+
+Theta_esti = theta(M_esti, point_esti, u_esti);                             %parameters ESTIMATED
+Theta_real = theta(M_real, point_real, u_real);                             %parameters REAL
+
+E_esti = zeros(3,1);                                                        %e(tj)
+E_coe = zeros(3,216);                                                       %e(tj) = E_coe * Theta_esti
+W = zeros(3,216);                                                           %e(tj) = W * Theta_delta
+Theta_integral = zeros(216,1);                                              %Theta_integral =  W.' * k3 * E_esti;
+
+j_velocity = [];                                                            %for plot
+T_velocity = [];                                                            %for plot
+E_velocity = [];                                                            %for plot
+
 %% Iteration
 while delta_n.'*delta_n > 0.00000000001
     %% control
     T_cur = Doves.fkine(joint_cur');
-    T_cur = inv(T_cur);
-    J_cur = Doves.jacob0(joint_cur');
-    Y = regressor(n_cur, T_cur, J_cur, delta_n);
-    joint_velocity = - k1 * Y * Theta_esti; 
-    j_velocity =  [j_velocity, joint_velocity];
+    T_cur = inv(T_cur);                                                     %homogenous transformation from base to end_effertor
+    J_cur = Doves.jacob0(joint_cur');                                       %Jacobian now
+    Y = regressor(n_cur, T_cur, J_cur, delta_n);                            %negative regressor matrix
+    joint_velocity = - k1 * Y * Theta_esti;                                 %joint velocity
+    j_velocity =  [j_velocity, joint_velocity];                             %for plot
     joint_cur = joint_cur + joint_velocity .* t;                            %updata endeffector (frame) current pose          
     %% parameter estimatin    
-    Theta_delta = Theta_esti - Theta_real;
+    Theta_delta = Theta_esti - Theta_real;                                  %delta unknown parameters
     if k == 10
         W = w(T_cur, n_cur);
         E_coe = err(T_cur, n_cur);
-    end
-    E_esti = E_coe * Theta_esti;
-    E_velocity = [E_velocity, E_esti];
-    E1 = W * Theta_delta;
+    end                                                                     %get a image for error vector e
+    E_esti = E_coe * Theta_esti;                                            %e(tj)
+    E_velocity = [E_velocity, E_esti];                                      %for plot
+    E1 = W * Theta_delta;                                                   %test e(tj) is right?  In theory : E1 = E_esti 
     Theta_integral =  W.' * k3 * E_esti;    
     Theta_velocity = - 1 / k4 * ((-Y).' * joint_velocity + Theta_integral); %the adaptive rule for the estimation of point position      
-    T_velocity = [T_velocity,Theta_velocity];
-    Theta_esti = Theta_esti + Theta_velocity .* t;                               
+    T_velocity = [T_velocity,Theta_velocity];                               %for plot
+    Theta_esti = Theta_esti + Theta_velocity .* t;                          %updata parameters estimated     
     %% image error
     b_cur = cross(M_real / Doves.fkine(joint_cur') * [point_real; 1], M_real / Doves.fkine(joint_cur') * [u_real; 0]);  
-    n_cur = b_cur/sqrt(sum(b_cur' * b_cur));                                %perspective projecion of line DESIRED 
+    n_cur = b_cur/sqrt(sum(b_cur' * b_cur));                                %perspective projecion of line CURRENT 
     figure(1);
     plot3(n_cur(1), n_cur(2), n_cur(3), '.');       
     hold on;                                                                %plot it
